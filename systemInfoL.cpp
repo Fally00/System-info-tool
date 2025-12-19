@@ -6,10 +6,10 @@
 #include <sys/utsname.h>
 #include <sys/statvfs.h>
 #include <pwd.h>
-#include <cstring>
+#include <iomanip>
 
 namespace SystemInfo {
-
+tat
     std::string getOSName() {
         struct utsname buffer;
         if (uname(&buffer) != 0) {
