@@ -2,20 +2,28 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <unistd.h>
-#include <sys/utsname.h>
-#include <sys/statvfs.h>
-#include <pwd.h>
+#include <filesystem>
 #include <iomanip>
+#include <cstdlib>
 
 namespace SystemInfo {
-tat
+
     std::string getOSName() {
-        struct utsname buffer;
-        if (uname(&buffer) != 0) {
-            return "Unknown";
+        std::ifstream file("/etc/os-release");
+        std::string line;
+        while (std::getline(file, line)) {
+            if (line.find("PRETTY_NAME") != std::string::npos) {
+                size_t equal = line.find('=');
+                if (equal != std::string::npos) {
+                    std::string value = line.substr(equal + 1);
+                    if (!value.empty() && value[0] == '"') {
+                        value = value.substr(1, value.size() - 2);
+                    }
+                    return value;
+                }
+            }
         }
-        return std::string(buffer.sysname) + " " + std::string(buffer.release);
+        return "Linux";
     }
 
     std::string getCPUModel() {
@@ -51,13 +59,12 @@ tat
     }
 
     uint64_t getDisk() {
-        struct statvfs stat;
-        if (statvfs("/", &stat) != 0) {
+        try {
+            auto space = std::filesystem::space("/");
+            return space.capacity / (1024 * 1024 * 1024);
+        } catch (...) {
             return 0;
         }
-        uint64_t total_bytes = stat.f_blocks * stat.f_frsize;
-        uint64_t total_gb = total_bytes / (1024 * 1024 * 1024);
-        return total_gb;
     }
 
     int getUptime() {
@@ -68,19 +75,9 @@ tat
     }
 
     std::string getUserName() {
-        char* username = getlogin();
+        char* username = getenv("USER");
         if (username) {
             return std::string(username);
-        }
-        // Fallback to environment variable
-        username = getenv("USER");
-        if (username) {
-            return std::string(username);
-        }
-        // Another fallback using getpwuid
-        struct passwd* pw = getpwuid(getuid());
-        if (pw) {
-            return std::string(pw->pw_name);
         }
         return "Unknown";
     }
