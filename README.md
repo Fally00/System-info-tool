@@ -8,9 +8,9 @@ making it useful for learning, diagnostics, and future system monitoring extensi
 
 ---
 
-## ✨ Features
+## Features
 
-### 🖥️ System Information
+### System Information
 - Operating System name
 - CPU model
 - Total RAM size
@@ -18,7 +18,7 @@ making it useful for learning, diagnostics, and future system monitoring extensi
 - System uptime
 - Current user information
 
-### 📊 System Usage
+### System Usage
 - CPU usage percentage
 - RAM usage percentage
 
@@ -26,7 +26,7 @@ All usage values are calculated using **native OS APIs**, not estimates.
 
 ---
 
-## 🧩 Planned Features
+## Planned Features
 
 The following features are planned and currently under development:
 
@@ -40,7 +40,7 @@ These additions are designed to keep SIT **lightweight, transparent, and safe**.
 
 ---
 
-## 🛠️ Supported Platforms
+## Supported Platforms
 
 - **Windows** (via WinAPI)
 - **Linux** (via `/proc` and standard system files)
@@ -49,7 +49,7 @@ The codebase uses conditional compilation to keep platform-specific logic isolat
 
 ---
 
-## 🧠 Design Philosophy
+## Design Philosophy
 
 - Minimal dependencies
 - Native OS APIs only
@@ -61,7 +61,7 @@ SIT is intentionally built as a **toolkit**, not a full monitoring daemon.
 
 ---
 
-## 📦 Build Instructions
+## Build Instructions
 
 ### Requirements
 - C++17 compatible compiler
@@ -70,4 +70,4 @@ SIT is intentionally built as a **toolkit**, not a full monitoring daemon.
 
 ### Build (example)
 ```bash
-g++ systemInfo.cpp -o sit
+g++ mai.cpp systemInfo.cpp -o sit
