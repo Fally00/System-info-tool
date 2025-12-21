@@ -6,15 +6,18 @@ namespace SystemInfo {
     // Returns the operating system name
     std::string getOSName();
 
-    //Returns the CPU model name
+    //Returns the CPU model name & CPU usage
     std::string getCPUModel();
+    double getCPUusage();
 
     // Returns the ram size in GB
     std::string getRam();
+    double getRamUsage();
 
     // Returns the total physical disk size in GB
     uint64_t getDisk();
-
+    double getDiskUsage();
+    
     // Returns the uptime in seconds
     int getUptime();
 
