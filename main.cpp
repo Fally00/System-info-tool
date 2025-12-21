@@ -28,15 +28,17 @@ int main() {
                     )";
 
     cout << PURPLE << logo << RESET << endl;
+    cout << PURPLE << "==============================================" << RESET << endl;
     cout << MAGENTA << BOLD << "System Information Tool" << RESET << endl;
     cout << MAGENTA << BOLD << "       To Start the System Info tool Press {1} & {0} to Exit" << RESET << endl;
     cout << PURPLE << "==============================================" << RESET << endl;
 
     //System Info Tool Start
     int choice;
+    cout <<"Your Choice is: " << choice << endl;
     cin >> choice;
     if (choice == 1) {
-        cout << WHITE << "==============================================" << RESET << endl;
+        cout << PURPLE << "==============================================" << RESET << endl;
         cout << "OS Name: " << SystemInfo::getOSName() << endl;
         cout << "CPU Model: " << SystemInfo::getCPUModel() << endl;
         cout << "RAM: " << SystemInfo::getRam() << endl;
@@ -49,9 +51,6 @@ int main() {
     else if(choice == 0){
         cout << RED << "Exiting System Information Tool." << RESET << endl;
     }
-
-
-
 
     return 0;
 }

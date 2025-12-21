@@ -6,6 +6,7 @@
 - [x] Making the commands for windows 
 - [x] fixing windows commands file (ik i will have errors)
 - [x] Adding comments to explain what i did and to remmeber it easily
-- [ ] Making main file 
-- [ ] making good welcom sign
+- [x] Making main file 
+- [x] making good welcom sign
+- [ ] Making this thing works (Critical)
 - [ ] For future tools will be added like system scan , maybe more stuff idk yet
