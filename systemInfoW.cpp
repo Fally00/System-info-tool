@@ -17,9 +17,9 @@ namespace SystemInfo {
         osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
         if (GetVersionExA(&osvi)) {
             if (osvi.dwMajorVersion == 10 && osvi.dwMinorVersion == 0) {
-                return "Windows 10";
+                return "Windows 11";
             } else if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 3) {
-                return "Windows 8.1";
+                return "Windows 10";
             } else if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 2) {
                 return "Windows 8";
             } else if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1) {
@@ -29,7 +29,7 @@ namespace SystemInfo {
             }
             return "Windows " + std::to_string(osvi.dwMajorVersion) + "." + std::to_string(osvi.dwMinorVersion);
         }
-        return "Windows 11";
+        return "Windows Unknown Version";
     }
 
     // Returns the CPU model name

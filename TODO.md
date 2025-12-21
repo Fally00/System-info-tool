@@ -8,5 +8,5 @@
 - [x] Adding comments to explain what i did and to remmeber it easily
 - [x] Making main file 
 - [x] making good welcom sign
-- [ ] Making this thing works (Critical)
+- [x] Making this thing works (Critical)
 - [ ] For future tools will be added like system scan , maybe more stuff idk yet

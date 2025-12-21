@@ -27,7 +27,8 @@ int main() {
 /____/___/ /_/     
                     )";
 
-    cout << PURPLE << logo << RESET << endl;
+    do {
+        cout << PURPLE << logo << RESET << endl;
     cout << PURPLE << "==============================================" << RESET << endl;
     cout << MAGENTA << BOLD << "System Information Tool" << RESET << endl;
     cout << MAGENTA << BOLD << "       To Start the System Info tool Press {1} & {0} to Exit" << RESET << endl;
@@ -35,7 +36,6 @@ int main() {
 
     //System Info Tool Start
     int choice;
-    cout <<"Your Choice is: " << choice << endl;
     cin >> choice;
     if (choice == 1) {
         cout << PURPLE << "==============================================" << RESET << endl;
@@ -50,7 +50,11 @@ int main() {
     //Exit System Info Tool
     else if(choice == 0){
         cout << RED << "Exiting System Information Tool." << RESET << endl;
-    }
+            break;
+        } else {
+            cout << RED << "Invalid choice. Please enter 1 or 0." << RESET << endl;
+        }
+    } while (true);
 
     return 0;
 }
