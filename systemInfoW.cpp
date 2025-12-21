@@ -1,28 +1,34 @@
 #define UNICODE
-#include "systemInfo.h"
-#include <windows.h>
-#include <string>
-#include <sstream>
-#include <iomanip>
-#include <intrin.h>
-#include <winreg.h>
+#include "systemInfo.h"     // Header with function declarations
+#include <windows.h>       // For Windows API functions
+#include <string>         // For std::string
+#include <sstream>       // For std::ostringstream
+#include <iomanip>      // For std::fixed and std::setprecision
+#include <intrin.h>    // For __cpuid
 
 // Implementation of SystemInfo functions for Windows
 namespace SystemInfo {
 
     // Returns the operating system name
     std::string getOSName() {
-        HKEY hKey;
-        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-            char buffer[256];
-            DWORD size = sizeof(buffer);
-            if (RegQueryValueEx(hKey, "ProductName", NULL, NULL, (LPBYTE)buffer, &size) == ERROR_SUCCESS) {
-                RegCloseKey(hKey);
-                return std::string(buffer);
+        OSVERSIONINFOA osvi;
+        ZeroMemory(&osvi, sizeof(OSVERSIONINFOA));
+        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
+        if (GetVersionExA(&osvi)) {
+            if (osvi.dwMajorVersion == 10 && osvi.dwMinorVersion == 0) {
+                return "Windows 10";
+            } else if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 3) {
+                return "Windows 8.1";
+            } else if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 2) {
+                return "Windows 8";
+            } else if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1) {
+                return "Windows 7";
+            } else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1) {
+                return "Windows XP";
             }
-            RegCloseKey(hKey);
+            return "Windows " + std::to_string(osvi.dwMajorVersion) + "." + std::to_string(osvi.dwMinorVersion);
         }
-        return "Windows";
+        return "Unknown";
     }
 
     // Returns the CPU model name
