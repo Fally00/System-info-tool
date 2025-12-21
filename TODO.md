@@ -19,6 +19,7 @@
 # TODO List for Improving the toolkit 
 
 - [x] Adding a Usage indicator 
+- [x] Adjusting main 
 - [ ] Adding a System Health Score indicator 
 - [ ] Improving the Quality of the new add-ons
 - [ ] Improving CLI abit 
