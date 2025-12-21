@@ -1,5 +1,6 @@
 #pragma once 
 #include <string>
+#include <cstdint>
 
 namespace SystemInfo {
     // Returns the operating system name
