@@ -28,24 +28,31 @@ int main() {
                     )";
 
     do {
-        cout << PURPLE << logo << RESET << endl;
-    cout << PURPLE << "==============================================" << RESET << endl;
+        cout << BLUE << BOLD << logo << RESET << endl;
+    cout << BLUE << "==============================================" << RESET << endl;
     cout << MAGENTA << BOLD << "System Information Tool" << RESET << endl;
     cout << MAGENTA << BOLD << "       To Start the System Info tool Press {1} & {0} to Exit" << RESET << endl;
-    cout << PURPLE << "==============================================" << RESET << endl;
+    cout << BLUE << "==============================================" << RESET << endl;
 
     //System Info Tool Start
     int choice;
     cin >> choice;
     if (choice == 1) {
-        cout << PURPLE << "==============================================" << RESET << endl;
+        //System Basic Info
+        cout << MAGENTA << BOLD << "---------- System Basic Info ----------" << RESET << endl;
         cout << "OS Name: " << SystemInfo::getOSName() << endl;
         cout << "CPU Model: " << SystemInfo::getCPUModel() << endl;
         cout << "RAM: " << SystemInfo::getRam() << endl;
         cout << "Disk Size: " << SystemInfo::getDisk() << " GB" << endl;
         cout << "Uptime: " << SystemInfo::getUptime() << " seconds" << endl;
         cout << "User Name: " << SystemInfo::getUserName() << endl;
-        cout << PURPLE << "==============================================" << RESET << endl;
+        cout << BLUE << "==============================================" << RESET << endl;
+        
+        //System Usage Info
+        cout << MAGENTA << BOLD << "---------- System Usage Info ----------" << RESET << endl;
+        cout << "CPU Usage: " << SystemInfo::getCPUusage() << " %" << endl;
+        cout << "RAM Usage: " << SystemInfo::getRamUsage() << " %" << endl;
+        cout << BLUE << "==============================================" << RESET << endl;
     }
     //Exit System Info Tool
     else if(choice == 0){
