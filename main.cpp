@@ -13,13 +13,24 @@ using namespace std;
 #define MAGENTA     "\033[35m"
 #define CYAN        "\033[36m"
 #define WHITE       "\033[37m"
+#define PURPLE      "\033[95m"
 
 
 
 int main() {
-    cout << MAGENTA << "System Information Tool" << RESET << endl;
-    cout << MAGENTA << "       To Start the System Info tool Press {1} & {0} to Exit" << RESET << endl;
-    cout << WHITE << "==============================================" << RESET << endl;
+
+    const std::string logo = R"(  
+   _____ __________
+  / ___//  _/_  __/
+  \__ \ / /  / /   
+ ___/ // /  / /    
+/____/___/ /_/     
+                    )";
+
+    cout << PURPLE << logo << RESET << endl;
+    cout << MAGENTA << BOLD << "System Information Tool" << RESET << endl;
+    cout << MAGENTA << BOLD << "       To Start the System Info tool Press {1} & {0} to Exit" << RESET << endl;
+    cout << PURPLE << "==============================================" << RESET << endl;
 
     //System Info Tool Start
     int choice;
@@ -32,7 +43,7 @@ int main() {
         cout << "Disk Size: " << SystemInfo::getDisk() << " GB" << endl;
         cout << "Uptime: " << SystemInfo::getUptime() << " seconds" << endl;
         cout << "User Name: " << SystemInfo::getUserName() << endl;
-        cout << WHITE << "==============================================" << RESET << endl;
+        cout << PURPLE << "==============================================" << RESET << endl;
     }
     //Exit System Info Tool
     else if(choice == 0){
