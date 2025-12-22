@@ -10,6 +10,8 @@ making it useful for learning, diagnostics, and future system monitoring extensi
 
 ## Features
 
+![System Start Menu](assest/sit.png)
+
 ### System Information
 - Operating System name
 - CPU model
