@@ -10,6 +10,8 @@ making it useful for learning, diagnostics, and future system monitoring extensi
 
 ## Features
 
+![System Start Menu](assest/sit.png)
+
 ### System Information
 - Operating System name
 - CPU model
@@ -28,6 +30,7 @@ making it useful for learning, diagnostics, and future system monitoring extensi
 - RAM health score based on its usage
 - DISK health score based on its usage
 
+![System working](assest/sit2.png)
 
 All usage values are calculated using **native OS APIs**, not estimates.
 
