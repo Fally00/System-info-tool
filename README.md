@@ -1,4 +1,4 @@
-# SIT — System Information Toolkit
+# SIT — System Insight Toolkit
 
 **SIT** is a lightweight, cross-platform **System Information Toolkit** written in C++.
 It provides essential system details and real-time usage metrics with a clean and minimal design.
