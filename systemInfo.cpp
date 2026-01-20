@@ -11,6 +11,8 @@
 #include <string>          // For std::string
 #include <sstream>        // For std::ostringstream
 #include <iomanip>       // For std::fixed and std::setprecision
+#include <thread>        // For std::this_thread::sleep_for
+#include <chrono>        // For std::chrono::milliseconds
 
 #ifndef _WIN32
 #include <fstream>         // For file input/output (reading /proc and /etc files)
@@ -175,54 +177,74 @@ namespace SystemInfo {
     // Returns the CPU usage percentage
     double getCPUusage() {
 #ifdef _WIN32
-        static ULARGE_INTEGER lastIdle = {0}, lastKernel = {0}, lastUser = {0};
+        auto readCpuTimes = [](uint64_t& idle, uint64_t& total) -> bool {
+            FILETIME idleTime, kernelTime, userTime;
+            if (!GetSystemTimes(&idleTime, &kernelTime, &userTime)) {
+                return false;
+            }
+            ULARGE_INTEGER idleUi, kernelUi, userUi;
+            idleUi.LowPart   = idleTime.dwLowDateTime;
+            idleUi.HighPart  = idleTime.dwHighDateTime;
+            kernelUi.LowPart = kernelTime.dwLowDateTime;
+            kernelUi.HighPart= kernelTime.dwHighDateTime;
+            userUi.LowPart   = userTime.dwLowDateTime;
+            userUi.HighPart  = userTime.dwHighDateTime;
+            idle = idleUi.QuadPart;
+            total = kernelUi.QuadPart + userUi.QuadPart;
+            return true;
+        };
 
-        FILETIME idleTime, kernelTime, userTime;
-        if (!GetSystemTimes(&idleTime, &kernelTime, &userTime))
-            return 0.0;
+        uint64_t idle1 = 0, total1 = 0, idle2 = 0, total2 = 0;
+        if (!readCpuTimes(idle1, total1)) return 0.0;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        if (!readCpuTimes(idle2, total2)) return 0.0;
 
-        // Convert FILETIME to ULARGE_INTEGER
-        ULARGE_INTEGER idle, kernel, user;
-        idle.LowPart   = idleTime.dwLowDateTime;
-        idle.HighPart  = idleTime.dwHighDateTime;
-        kernel.LowPart = kernelTime.dwLowDateTime;
-        kernel.HighPart= kernelTime.dwHighDateTime;
-        user.LowPart   = userTime.dwLowDateTime;
-        user.HighPart  = userTime.dwHighDateTime;
-        // Calculate differences
-        uint64_t idleDiff   = idle.QuadPart   - lastIdle.QuadPart;
-        uint64_t kernelDiff = kernel.QuadPart - lastKernel.QuadPart;
-        uint64_t userDiff   = user.QuadPart   - lastUser.QuadPart;
-        // Update last times
-        lastIdle = idle;
-        lastKernel = kernel;
-        lastUser = user;
-        // Calculate CPU usage
-        uint64_t total = kernelDiff + userDiff;
-        if (total == 0) return 0.0;
+        uint64_t idleDiff = idle2 - idle1;
+        uint64_t totalDiff = total2 - total1;
+        if (totalDiff == 0) return 0.0;
 
-        return (1.0 - (double)idleDiff / total) * 100.0;
+        return (1.0 - (double)idleDiff / totalDiff) * 100.0;
 #else
-        // Linux implementation: read /proc/stat
-        static uint64_t prev_idle = 0, prev_total = 0;
-        std::ifstream file("/proc/stat");
-        std::string line;
-        // Read the first line
-        if (std::getline(file, line)) {
+        auto readCpuTimes = [](uint64_t& idle, uint64_t& total) -> bool {
+            std::ifstream file("/proc/stat");
+            std::string line;
+            if (!std::getline(file, line)) {
+                return false;
+            }
             std::istringstream iss(line);
             std::string cpu;
-            uint64_t user, nice, system, idle, iowait, irq, softirq;
-            iss >> cpu >> user >> nice >> system >> idle >> iowait >> irq >> softirq;
-            uint64_t total = user + nice + system + idle + iowait + irq + softirq;
-            uint64_t idle_diff = idle - prev_idle;
-            uint64_t total_diff = total - prev_total;
-            prev_idle = idle;
-            prev_total = total;
-            // Calculate CPU usage
-            if (total_diff == 0) return 0.0;
-            return (1.0 - (double)idle_diff / total_diff) * 100.0;
+            uint64_t user = 0, nice = 0, system = 0, idleRaw = 0, iowait = 0, irq = 0, softirq = 0;
+            uint64_t steal = 0, guest = 0, guestNice = 0;
+            iss >> cpu >> user >> nice >> system >> idleRaw >> iowait >> irq >> softirq >> steal >> guest >> guestNice;
+            uint64_t idleAll = idleRaw + iowait;
+            total = user + nice + system + idleRaw + iowait + irq + softirq + steal + guest + guestNice;
+            idle = idleAll;
+            return true;
+        };
+
+        uint64_t idle1 = 0, total1 = 0, idle2 = 0, total2 = 0;
+        if (!readCpuTimes(idle1, total1)) return 0.0;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        if (!readCpuTimes(idle2, total2)) return 0.0;
+
+        uint64_t idleDiff = idle2 - idle1;
+        uint64_t totalDiff = total2 - total1;
+        if (totalDiff == 0) return 0.0;
+        return (1.0 - (double)idleDiff / totalDiff) * 100.0;
+#endif
+    }
+
+    // Returns CPU temperature in Celsius, or -1.0 if unavailable
+    double getCpuTemperatureC() {
+#ifdef _WIN32
+        return -1.0;
+#else
+        std::ifstream file("/sys/class/thermal/thermal_zone0/temp");
+        long tempMilliC = 0;
+        if (file >> tempMilliC) {
+            return tempMilliC / 1000.0;
         }
-        return 0.0;
+        return -1.0;
 #endif
     }
 
@@ -268,6 +290,7 @@ namespace SystemInfo {
         // Windows implementation
         ULARGE_INTEGER totalBytes, freeBytes;
         if (GetDiskFreeSpaceExA("C:\\", NULL, &totalBytes, &freeBytes)) {
+            if (totalBytes.QuadPart == 0) return 0.0;
             uint64_t used = totalBytes.QuadPart - freeBytes.QuadPart;
             return (double)used / totalBytes.QuadPart * 100.0;
         }
@@ -276,6 +299,7 @@ namespace SystemInfo {
         // Linux implementation using std::filesystem
         try {
             auto space = std::filesystem::space("/");
+            if (space.capacity == 0) return 0.0;
             uint64_t used = space.capacity - space.free;
             return (double)used / space.capacity * 100.0;
         } catch (...) {

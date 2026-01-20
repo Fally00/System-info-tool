@@ -32,9 +32,9 @@ void CLI::run() {
     if (interactive) {
         interactiveMode();
     } else {
-        if (args[0] == "--help" || args[0] == "-h") {
+        if (args[0] == "--help" || args[0] == "-h" || args[0] == "help") {
             showHelp();
-        } else if (args[0] == "--version" || args[0] == "-v") {
+        } else if (args[0] == "--version" || args[0] == "-v" || args[0] == "version") {
             showVersion();
         } else if (args[0] == "info") {
             showInfo();
@@ -42,6 +42,8 @@ void CLI::run() {
             showUsage();
         } else if (args[0] == "health") {
             showHealth();
+        } else if (args[0] == "scan") {
+            showScan();
         } else if (args[0] == "all") {
             showAll();
         } else {
@@ -57,6 +59,7 @@ void CLI::showHelp() {
     std::cout << WHITE << "  info     Show basic system information" << std::endl;
     std::cout << WHITE << "  usage    Show system resource usage" << std::endl;
     std::cout << WHITE << "  health   Show system health status" << std::endl;
+    std::cout << WHITE << "  scan     Scan for common system problems" << std::endl;
     std::cout << WHITE << "  all      Show all information" << std::endl;
     std::cout << GREEN << "  help     Show this help message" << std::endl;
     std::cout << GREEN << "  version  Show version information" << std::endl;
@@ -106,6 +109,59 @@ void CLI::showAll() {
     showInfo();
     showUsage();
     showHealth();
+    showScan();
+}
+
+void CLI::showScan() {
+    struct Issue {
+        std::string severity;
+        std::string message;
+        std::string tip;
+    };
+
+    std::vector<Issue> issues;
+    double cpu = SystemInfo::getCPUusage();
+    double ram = SystemInfo::getRamUsage();
+    int uptimeSeconds = SystemInfo::getUptime();
+    double tempC = SystemInfo::getCpuTemperatureC();
+
+    if (cpu >= 85.0) {
+        issues.push_back({"CRITICAL", "High CPU usage (" + std::to_string((int)cpu) + "%)", "Close heavy apps or check background processes."});
+    } else if (cpu >= 70.0) {
+        issues.push_back({"WARNING", "Elevated CPU usage (" + std::to_string((int)cpu) + "%)", "Check for apps using unusual CPU."});
+    }
+
+    if (ram >= 85.0) {
+        issues.push_back({"CRITICAL", "High RAM usage (" + std::to_string((int)ram) + "%)", "Close apps or upgrade memory if needed."});
+    } else if (ram >= 75.0) {
+        issues.push_back({"WARNING", "Elevated RAM usage (" + std::to_string((int)ram) + "%)", "Close unused apps and browser tabs."});
+    }
+
+    int uptimeDays = uptimeSeconds / (60 * 60 * 24);
+    if (uptimeDays >= 30) {
+        issues.push_back({"CRITICAL", "Long uptime (" + std::to_string(uptimeDays) + " days)", "Reboot to clear leaks and apply updates."});
+    } else if (uptimeDays >= 7) {
+        issues.push_back({"WARNING", "Long uptime (" + std::to_string(uptimeDays) + " days)", "Consider a reboot if issues appear."});
+    }
+
+    if (tempC >= 0.0) {
+        if (tempC >= 85.0) {
+            issues.push_back({"CRITICAL", "High CPU temperature (" + std::to_string((int)tempC) + " C)", "Check cooling, fans, and airflow."});
+        } else if (tempC >= 75.0) {
+            issues.push_back({"WARNING", "Elevated CPU temperature (" + std::to_string((int)tempC) + " C)", "Clean dust and ensure good airflow."});
+        }
+    }
+
+    std::cout << YELLOW << BOLD << "---------- System Problem Scan ----------" << RESET << std::endl;
+    if (issues.empty()) {
+        std::cout << GREEN << "No problems detected." << RESET << std::endl;
+    } else {
+        for (const auto& issue : issues) {
+            std::cout << RED << "[" << issue.severity << "] " << RESET
+                      << issue.message << " | Tip: " << issue.tip << std::endl;
+        }
+    }
+    std::cout << COFFEE << "==============================================" << RESET << std::endl;
 }
 
 void CLI::interactiveMode() {
@@ -127,6 +183,10 @@ void CLI::interactiveMode() {
     while (true) {
         std::cout << "sysinfo> ";
         std::getline(std::cin, command);
+        if (!std::cin) {
+            std::cout << RED << "Input closed. Exiting System Insight Toolkit." << RESET << std::endl;
+            break;
+        }
         if (command == "exit" || command == "quit") {
             std::cout << RED << "Exiting System Insight Toolkit." << RESET << std::endl;
             break;
@@ -140,6 +200,8 @@ void CLI::interactiveMode() {
             showUsage();
         } else if (command == "health") {
             showHealth();
+        } else if (command == "scan") {
+            showScan();
         } else if (command == "all") {
             showAll();
         } else if (command.empty()) {

@@ -12,7 +12,7 @@
 - [x] Cross Platform support 
 - [x] Deletion of the unnecessary files that got merged 
 - [x] Improving logic and error handling
-- [ ] For future tools will be added like system scan , maybe more stuff idk yet
+- [x] For future tools will be added like system scan , maybe more stuff idk yet
 - [ ] Turing it into real app 
 
 =====================================
@@ -25,6 +25,5 @@
 - [x] Improving CLI abit 
 - [x] CLI is fixed working and good looking
 - [x] Improving the Quality of the new add-ons all system is accurate and working perfcetly
-- [ ] Adding Problems scanner (Errors/Weakness) in the system indicators 
+- [x] Adding Problems scanner (Errors/Weakness) in the system indicators 
 - [ ] Adding File integrity checker
-

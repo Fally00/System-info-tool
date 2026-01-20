@@ -31,6 +31,11 @@ making it useful for learning, diagnostics, and future system monitoring extensi
 - DISK health score based on its usage
 - Overall health score
 
+### Problem Scanner
+- High CPU or RAM usage detection
+- Long uptime detection
+- Overheating detection (when sensors are available)
+
 ### CLI 
 - Active cli commands
 - Help & Version commands added
@@ -57,6 +62,7 @@ SIT supports both command-line and interactive modes.
 - `info`     - Show basic system information
 - `usage`    - Show system resource usage
 - `health`   - Show system health status
+- `scan`     - Scan for common system problems
 - `all`      - Show all information
 
 #### Options
@@ -109,7 +115,7 @@ Exiting System Information Tool.
 
 The following features are planned and currently under development:
 
-- [ ] System problems scanner (errors / weaknesses indicators)
+- [x] System problems scanner (errors / weaknesses indicators)
 - [ ] File integrity checker
 - [ ] Part of a new major project soon !
 

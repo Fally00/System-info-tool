@@ -26,7 +26,7 @@ namespace Health {
         } else if (cpuUsage < 80.0) {
             return "Moderate";
         } else {
-            return "critical";
+            return "Critical";
         }
     }
 
@@ -37,18 +37,18 @@ namespace Health {
         } else if (ramUsage < 80.0) {
             return "Moderate";
         } else {
-            return "critical";
+            return "Critical";
         }
     }
 
     // Returns the disk health score
-    int Diskhp(double diskUsage) {
+    std::string Diskhp(double diskUsage) {
         if (diskUsage < 70.0) {
-            return 100;
+            return "Good";
         } else if (diskUsage < 90.0) {
-            return 70;
+            return "Moderate";
         } else {
-            return 40;
+            return "Critical";
         }
     }
 

@@ -16,6 +16,7 @@ private:
     void showInfo();
     void showUsage();
     void showHealth();
+    void showScan();
     void showAll();
     void interactiveMode();
 };

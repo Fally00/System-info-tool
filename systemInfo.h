@@ -9,6 +9,8 @@ namespace SystemInfo {
     //Returns the CPU model name , CPU usage percentage & CPU health score
     std::string getCPUModel();
     double getCPUusage();
+    // Returns CPU temperature in Celsius, or -1.0 if unavailable
+    double getCpuTemperatureC();
 
     // Returns the ram size in GB , RAM usage percentage & RAM health score
     std::string getRam();
