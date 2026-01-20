@@ -10,7 +10,7 @@ making it useful for learning, diagnostics, and future system monitoring extensi
 
 ## Features
 
-![System Start Menu](assest/sit1.2.png)
+![System Start Menu](assest/aassest1.3.png)
 
 ### System Information
 - Operating System name
@@ -181,4 +181,4 @@ g++ -o sysinfo main.cpp cli.cpp systemInfo.cpp health.cpp integrity.cpp -std=c++
 
 OR
 
-.\sysinfo (in vs code terminal)
+.\sysinfo (in VS Code Terminal)
