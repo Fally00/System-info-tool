@@ -26,4 +26,6 @@
 - [x] CLI is fixed working and good looking
 - [x] Improving the Quality of the new add-ons all system is accurate and working perfcetly
 - [x] Adding Problems scanner (Errors/Weakness) in the system indicators 
-- [ ] Adding File integrity checker
+- [x] Adding File integrity checker
+- [ ] Adding log history 
+- [ ] improve codebase 

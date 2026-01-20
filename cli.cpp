@@ -1,9 +1,12 @@
 #include "systemInfo.h"
 #include "health.h"
+#include "integrity.h"
 #include "cli.h"
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sstream>
+#include <filesystem>
 
 // ANSI color codes
 #define RESET       "\033[0m"
@@ -19,6 +22,7 @@
 #define ORANGE      "\033[38;5;208m"
 #define COFFEE     "\033[38;5;94m"
 
+// CLI class constructor
 CLI::CLI(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         args.push_back(argv[i]);
@@ -28,6 +32,7 @@ CLI::CLI(int argc, char* argv[]) {
     }
 }
 
+// Run the CLI based on provided arguments or enter interactive mode
 void CLI::run() {
     if (interactive) {
         interactiveMode();
@@ -46,12 +51,15 @@ void CLI::run() {
             showScan();
         } else if (args[0] == "all") {
             showAll();
+        } else if (args[0] == "integrity") {
+            showIntegrity(args);
         } else {
             std::cout << RED << "Unknown command. Use --help for usage." << RESET << std::endl;
         }
     }
 }
 
+// Display help information
 void CLI::showHelp() {
     std::cout << YELLOW << BOLD << "System Insight Toolkit Commands" << RESET << std::endl;
     std::cout << WHITE << std::endl;
@@ -61,16 +69,19 @@ void CLI::showHelp() {
     std::cout << WHITE << "  health   Show system health status" << std::endl;
     std::cout << WHITE << "  scan     Scan for common system problems" << std::endl;
     std::cout << WHITE << "  all      Show all information" << std::endl;
+    std::cout << WHITE << "  integrity init|check|update [path]  File integrity tools" << std::endl;
     std::cout << GREEN << "  help     Show this help message" << std::endl;
     std::cout << GREEN << "  version  Show version information" << std::endl;
     std::cout << RED << "  << exit >>    Exit the tool" << std::endl;
     std::cout << WHITE << std::endl;
 }
 
+// Display version information
 void CLI::showVersion() {
-    std::cout << YELLOW << "System Insight Toolkit v1.2.0" << std::endl;
+    std::cout << YELLOW << "System Insight Toolkit v1.3.0" << std::endl;
 }
 
+// Display basic system information
 void CLI::showInfo() {
     std::cout << YELLOW << BOLD << "---------- System Basic Info ----------" << RESET << std::endl;
     std::cout << "OS Name: " << SystemInfo::getOSName() << std::endl;
@@ -82,6 +93,7 @@ void CLI::showInfo() {
     std::cout << COFFEE << "==============================================" << RESET << std::endl;
 }
 
+// Display system resource usage
 void CLI::showUsage() {
     std::cout << YELLOW << BOLD << "---------- System Usage Info ----------" << RESET << std::endl;
     double cpu = SystemInfo::getCPUusage();
@@ -93,6 +105,7 @@ void CLI::showUsage() {
     std::cout << COFFEE << "==============================================" << RESET << std::endl;
 }
 
+// Display system health status
 void CLI::showHealth() {
     std::cout << YELLOW<< BOLD << "---------- System Health Info ----------" << RESET << std::endl;
     double cpu = SystemInfo::getCPUusage();
@@ -105,13 +118,7 @@ void CLI::showHealth() {
     std::cout << COFFEE << "==============================================" << RESET << std::endl;
 }
 
-void CLI::showAll() {
-    showInfo();
-    showUsage();
-    showHealth();
-    showScan();
-}
-
+// Scan for common system problems
 void CLI::showScan() {
     struct Issue {
         std::string severity;
@@ -164,6 +171,94 @@ void CLI::showScan() {
     std::cout << COFFEE << "==============================================" << RESET << std::endl;
 }
 
+void CLI::showIntegrity(const std::vector<std::string>& tokens) {
+    std::cout << YELLOW << BOLD << "---------- File Integrity ----------" << RESET << std::endl;
+    if (tokens.size() < 2) {
+        std::cout << WHITE << "Usage: integrity init|check|update [path]" << std::endl;
+        std::cout << COFFEE << "==============================================" << RESET << std::endl;
+        return;
+    }
+
+    std::string action = tokens[1];
+    std::filesystem::path root = std::filesystem::current_path();
+    if (tokens.size() >= 3) {
+        root = tokens[2];
+    }
+    root = std::filesystem::absolute(root);
+    std::filesystem::path manifestPath = root / Integrity::kManifestFileName;
+
+    std::string error;
+    if (action == "init") {
+        bool ok = Integrity::createManifest(root, &error);
+        if (ok) {
+            std::cout << GREEN << "Integrity manifest created at: " << manifestPath.string() << RESET << std::endl;
+            if (!error.empty()) {
+                std::cout << YELLOW << "Warning: " << error << RESET << std::endl;
+            }
+        } else {
+            std::cout << RED << (error.empty() ? "Failed to create integrity manifest." : error) << RESET << std::endl;
+        }
+    } else if (action == "update") {
+        bool ok = Integrity::updateManifest(root, &error);
+        if (ok) {
+            std::cout << GREEN << "Integrity manifest updated at: " << manifestPath.string() << RESET << std::endl;
+            if (!error.empty()) {
+                std::cout << YELLOW << "Warning: " << error << RESET << std::endl;
+            }
+        } else {
+            std::cout << RED << (error.empty() ? "Failed to update integrity manifest." : error) << RESET << std::endl;
+        }
+    } else if (action == "check") {
+        Integrity::CheckResult result;
+        bool ok = Integrity::checkManifest(root, result, &error);
+        if (!ok) {
+            std::cout << RED << (error.empty() ? "Failed to check integrity manifest." : error) << RESET << std::endl;
+            std::cout << COFFEE << "==============================================" << RESET << std::endl;
+            return;
+        }
+
+        std::cout << WHITE << "Root: " << root.string() << std::endl;
+        std::cout << WHITE << "Manifest: " << manifestPath.string() << std::endl;
+        std::cout << WHITE << "Tracked: " << result.total << std::endl;
+        std::cout << WHITE << "OK: " << result.ok
+                  << " | Changed: " << result.changed
+                  << " | Missing: " << result.missing
+                  << " | New: " << result.added
+                  << " | Errors: " << result.errors << std::endl;
+
+        if (result.issues.empty()) {
+            std::cout << GREEN << "Integrity OK." << RESET << std::endl;
+        } else {
+            for (const auto& issue : result.issues) {
+                std::cout << RED << "[" << issue.status << "] " << RESET
+                          << issue.path << " | " << issue.detail << std::endl;
+            }
+        }
+    } else {
+        std::cout << WHITE << "Usage: integrity init | check | update [path]" << std::endl;
+    }
+    std::cout << COFFEE << "==============================================" << RESET << std::endl;
+}
+
+std::vector<std::string> CLI::tokenize(const std::string& line) {
+    std::istringstream iss(line);
+    std::vector<std::string> tokens;
+    for (std::string token; iss >> token;) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+
+// Display all information
+void CLI::showAll() {
+    showInfo();
+    showUsage();
+    showHealth();
+    showScan();
+}
+
+// Interactive mode implementation of the CLI 
 void CLI::interactiveMode() {
     const std::string logo = R"(
    _____ __________ 
@@ -175,7 +270,7 @@ void CLI::interactiveMode() {
 
     std::cout << YELLOW  << BOLD << logo << RESET << std::endl;
     std::cout << COFFEE << "==============================================" << RESET << std::endl;
-    std::cout << YELLOW << BOLD << "System Insight Toolkit v1.2.0" << RESET << std::endl;
+    std::cout << YELLOW << BOLD << "System Insight Toolkit v1.3.0" << RESET << std::endl;
     std::cout << "Type 'help' for commands or 'exit' to quit." << std::endl;
     std::cout << COFFEE << "==============================================" << RESET << std::endl;
 
@@ -187,25 +282,30 @@ void CLI::interactiveMode() {
             std::cout << RED << "Input closed. Exiting System Insight Toolkit." << RESET << std::endl;
             break;
         }
-        if (command == "exit" || command == "quit") {
+        std::vector<std::string> tokens = tokenize(command);
+        if (tokens.empty()) {
+            continue;
+        }
+        const std::string& cmd = tokens[0];
+        if (cmd == "exit" || cmd == "quit") {
             std::cout << RED << "Exiting System Insight Toolkit." << RESET << std::endl;
             break;
-        } else if (command == "help") {
+        } else if (cmd == "help") {
             showHelp();
-        } else if (command == "version") {
+        } else if (cmd == "version") {
             showVersion();
-        } else if (command == "info") {
+        } else if (cmd == "info") {
             showInfo();
-        } else if (command == "usage") {
+        } else if (cmd == "usage") {
             showUsage();
-        } else if (command == "health") {
+        } else if (cmd == "health") {
             showHealth();
-        } else if (command == "scan") {
+        } else if (cmd == "scan") {
             showScan();
-        } else if (command == "all") {
+        } else if (cmd == "integrity checker") {
+            showIntegrity(tokens);
+        } else if (cmd == "all") {
             showAll();
-        } else if (command.empty()) {
-            continue;
         } else {
             std::cout << RED << "Unknown command. Type 'help' for available commands." << RESET << std::endl;
         }

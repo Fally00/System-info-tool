@@ -36,12 +36,29 @@ making it useful for learning, diagnostics, and future system monitoring extensi
 - Long uptime detection
 - Overheating detection (when sensors are available)
 
+### File Integrity Checker
+- Project-local integrity manifest
+- SHA-256 hashing for change detection
+- Flags changed, missing, or new files
+- Manifest file: `.sit_integrity.manifest` in the chosen root path
+
+```
+Usage
+
+- integrity init [path] creates a project-local manifest file at .sit_integrity.manifest in the chosen root (default is the current directory).
+- integrity check [path] compares current files to the manifest and reports OK/Changed/Missing/New/Errors.
+- integrity update [path] recreates the manifest when you intentionally changed files and want a new baseline.
+
+```
+
 ### CLI 
 - Active cli commands
 - Help & Version commands added
 - System usage commands
 - System info commands
 - System health commands
+- System scan commands
+- System integrity commands
 - System all for listing all system info , usage & health score 
 
 All usage values are calculated using **native OS APIs**, not estimates.
@@ -64,6 +81,7 @@ SIT supports both command-line and interactive modes.
 - `health`   - Show system health status
 - `scan`     - Scan for common system problems
 - `all`      - Show all information
+- `integrity`- Manage file integrity manifest (init/check/update)
 
 #### Options
 - `--help`, `-h`    - Show help message
@@ -75,6 +93,10 @@ SIT supports both command-line and interactive modes.
 ./sysinfo info
 ./sysinfo usage
 ./sysinfo health
+./sysinfo scan
+./sysinfo integrity init
+./sysinfo integrity check
+./sysinfo integrity update
 ./sysinfo all
 ```
 
@@ -86,7 +108,7 @@ If no arguments are provided, SIT starts in interactive shell mode.
 ./sysinfo
 ```
 
-You will see a prompt `sysinfo> ` where you can type commands like `info`, `usage`, `health`, `all`, `help`, `version`, or `exit` to quit.
+You will see a prompt `sysinfo> ` where you can type commands like `info`, `usage`, `health`, `scan`, `integrity`, `all`, `help`, `version`, or `exit` to quit.
 
 Example session:
 ```
@@ -97,6 +119,8 @@ Commands:
   info     Show basic system information
   usage    Show system resource usage
   health   Show system health status
+  scan     Scan for common system problems
+  integrity init|check|update [path]  File integrity tools
   all      Show all information
   help     Show this help message
   version  Show version information
@@ -116,7 +140,7 @@ Exiting System Information Tool.
 The following features are planned and currently under development:
 
 - [x] System problems scanner (errors / weaknesses indicators)
-- [ ] File integrity checker
+- [x] File integrity checker
 - [ ] Part of a new major project soon !
 
 These additions are designed to keep SIT **lightweight, transparent, and safe**.
@@ -153,7 +177,7 @@ SIT is intentionally built as a **toolkit**.
 
 ### Build (example)
 ```bash
-g++ -o sysinfo main.cpp cli.cpp systemInfo.cpp health.cpp -std=c++17
+g++ -o sysinfo main.cpp cli.cpp systemInfo.cpp health.cpp integrity.cpp -std=c++17
 
 OR
 
